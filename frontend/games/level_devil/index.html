@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Troll Devil</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<div id="menu">
+  <h1> Troll Devil</h1>
+  <p>Setas ou AD para andar, espaço para pular, Shift para agachar, Q para dar um dash,<br>clique esquerdo para atacar com a espada (segure W/S + clique para bater pra cima/baixo), R para reiniciar a fase,<br>Ctrl+F2 para mostrar/ocultar as hitboxes. Não confie em nada.</p>
+  <input id="nick" maxlength="12" placeholder="Seu nickname">
+  <button id="btnJogar">Jogar</button>
+  <div id="erro"></div>
+  <h3>🏆 Ranking</h3>
+  <ol id="rankMenu"></ol>
+</div>
+
+<canvas id="game" width="800" height="450"></canvas>
+<button id="btnReiniciar">🔄 Reiniciar fase (R)</button>
+
+<canvas id="confete"></canvas>
+<div id="fim">
+  <img id="fimGato" src="img/gato/gato4.png" alt="">
+  <h1 id="fimTitulo">VOCÊ VENCEU!</h1>
+  <p id="fimSub">Você passou por todas as fases. Não confiou em nada e mesmo assim chegou lá.</p>
+  <h2 id="resultado"></h2>
+  <p id="fimPosicao"></p>
+  <h3>🏆 Ranking</h3>
+  <ol id="rankFim"></ol><br>
+  <button id="btnNovo">Próximo jogador</button>
+</div>
+
+<!-- A ORDEM DESSAS LINHAS IMPORTA: cada arquivo só pode usar o que foi carregado antes dele. -->
+
+<!-- 1) Configurações e base do jogo -->
+<script src="js/config/config.js"></script>
+<script src="js/nucleo/elementos.js"></script>
+<script src="js/nucleo/estado.js"></script>
+<script src="js/nucleo/utilidades.js"></script>
+
+<!-- 2) Armadilhas (o _registro.js sempre primeiro; depois um arquivo por tipo) -->
+<script src="js/armadilhas/_registro.js"></script>
+<script src="js/armadilhas/espinho.js"></script>
+<script src="js/armadilhas/chaoQueSome.js"></script>
+<script src="js/armadilhas/chaoInvisivel.js"></script>
+<script src="js/armadilhas/portaFalsa.js"></script>
+<script src="js/armadilhas/espinhoTeto.js"></script>
+<script src="js/armadilhas/espinhoDeslizante.js"></script>
+<script src="js/armadilhas/parede.js"></script>
+
+<!-- 3) Inimigos (o _registro.js sempre primeiro; depois a geração e um arquivo por tipo) -->
+<script src="js/inimigos/_registro.js"></script>
+<script src="js/inimigos/morte.js"></script>
+<script src="js/inimigos/geracao.js"></script>
+<script src="js/inimigos/corredor.js"></script>
+<script src="js/inimigos/voador.js"></script>
+<script src="js/inimigos/suicida.js"></script>
+
+<!-- 4) Personagens -->
+<script src="js/personagens/jogador.js"></script>
+<script src="js/personagens/porta.js"></script>
+
+<!-- 5) Combate (espada e a ligação dela com os inimigos) -->
+<script src="js/combate/espada.js"></script>
+<script src="js/combate/combate.js"></script>
+
+<!-- 6) Núcleo do jogo -->
+<script src="js/nucleo/colisao.js"></script>
+<script src="js/nucleo/desenho.js"></script>
+<script src="js/nucleo/ranking.js"></script>
+<script src="js/nucleo/controle-de-fases.js"></script>
+<script src="js/nucleo/transicao.js"></script>
+<script src="js/nucleo/vitoria.js"></script>
+<script src="js/nucleo/telas.js"></script>
+<script src="js/nucleo/teclado.js"></script>
+
+<!-- 7) Fases (a ordem aqui é a ordem das fases no jogo) -->
+<script src="js/fases/_lista.js"></script>
+<script src="js/fases/fase01.js"></script>
+<script src="js/fases/fase02.js"></script>
+<script src="js/fases/fase03.js"></script>
+<script src="js/fases/fase04.js"></script>
+<script src="js/fases/fase05.js"></script>
+<script src="js/fases/fase06.js"></script>
+<script src="js/fases/fase07.js"></script>
+<script src="js/fases/fase08.js"></script>
+<script src="js/fases/fase09.js"></script>
+<script src="js/fases/fase10.js"></script>
+<script src="js/fases/fase11.js"></script>
+<script src="js/fases/fase12.js"></script>
+<script src="js/fases/fase13.js"></script>
+<script src="js/fases/fase14.js"></script>
+<script src="js/fases/fase15.js"></script>
+<script src="js/fases/fase16.js"></script>
+<script src="js/fases/fase17.js"></script>
+<script src="js/fases/fase18.js"></script>
+<script src="js/fases/fase19.js"></script>
+<script src="js/fases/fase20.js"></script>
+<script src="js/fases/fase21.js"></script>
+<script src="js/fases/fase22.js"></script>
+<script src="js/fases/fase23.js"></script>
+
+<!-- 8) Principal: SEMPRE por último (ele abre o menu) -->
+<script src="js/nucleo/principal.js"></script>
+</body>
+</html>

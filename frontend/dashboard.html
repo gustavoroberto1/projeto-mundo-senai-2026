@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SENAI ARCADE | Dashboard</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="dash-shell">
+  <header class="dash-topbar">
+    <div class="brand">SENAI <b>ARCADE</b> — PAINEL</div>
+    <span id="connectionPill" class="live-pill"><span class="live-dot"></span>CONECTADO</span>
+  </header>
+
+  <h2 class="section-title">★ RANKINGS ★</h2>
+  <section class="board-grid" id="boards"></section>
+
+  <h2 class="section-title">★ ATIVIDADE RECENTE ★</h2>
+  <section class="recent">
+    <table>
+      <thead>
+        <tr><th>Jogador</th><th>Jogo</th><th>Pontuação</th><th>Horário</th><th></th></tr>
+      </thead>
+      <tbody id="recentBody"></tbody>
+    </table>
+  </section>
+</div>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

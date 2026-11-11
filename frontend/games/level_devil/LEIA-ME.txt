@@ -1,0 +1,210 @@
+TROLL DEVIL - como o projeto está organizado
+=============================================
+
+COMO JOGAR
+  Abra o arquivo index.html no navegador (dois cliques, ou Live Server no VS Code).
+  Dica: index.html?fase=15 começa direto na fase 15.
+
+  Controles:
+    setas ou A/D ........ andar            espaço ........ pular
+    Shift ............... agachar          Q ............. dash (impulso rápido)
+    clique esquerdo ..... espada           R ............. reiniciar a fase
+    Espada pra cima ..... segure W (ou seta pra cima) e clique
+    Espada pra baixo .... segure S (ou seta pra baixo) e clique
+
+PASTAS
+  index.html            a página. Aqui ficam as linhas <script> que carregam o código.
+  css/estilo.css        o visual.
+  js/config/            config.js: TODOS os números do jogo (física, pontos, dash, espada, inimigos...).
+  js/nucleo/            o motor do jogo:
+                          elementos.js, estado.js, utilidades.js, colisao.js,
+                          desenho.js, ranking.js, controle-de-fases.js,
+                          telas.js, teclado.js, principal.js (o loop do jogo)
+  js/personagens/       jogador.js (o gato: andar, dash, agachar, morrer, animação) e porta.js (a saída).
+  js/combate/           espada.js (o golpe: tempo, hitbox, desenho)
+                        combate.js (o que a espada faz nos inimigos: dano, quique)
+  js/inimigos/          _registro.js (ciclo de vida: atualizar, desenhar, remover, resetar, matar o gato)
+                        geracao.js (quantos inimigos nascem, de que tipo, onde, e a fila)
+                        corredor.js, voador.js, suicida.js (um arquivo por tipo de inimigo)
+  js/armadilhas/        um arquivo por tipo de armadilha (+ _registro.js).
+  js/fases/             fase01.js ... fase23.js
+  img/gato/             os desenhos do gato (andando, agachado, morto), com fundo transparente.
+  img/cenario/          cenario.jpg, a imagem de fundo do jogo.
+  img/inimigos/bomba/   os desenhos da bomba (pavio1..4.png e explosao.png), com fundo transparente.
+
+ONDE MEXER PRA...
+  mudar velocidade, pulo, gravidade ..... js/config/config.js (seção "Física padrão")
+  mudar pontos .......................... js/config/config.js (seção "Pontuação")
+  mudar o dash .......................... js/config/config.js (seção "Gato: dash")
+  mudar a espada (alcance, tempo) ....... js/config/config.js (seção "Espada")
+  mudar os inimigos (tamanho, vida) ..... js/config/config.js (seção "Inimigos")
+  ver as caixas de colisão .............. MOSTRAR_HITBOX = true no config.js
+
+A FASE SÓ COMEÇA QUANDO O GATO SE MEXER
+  Ao carregar uma fase (e também depois de morrer ou apertar R) ela fica PARADA:
+  inimigos, tiros e armadilhas congelados e o relógio da fase não anda. Aparece
+  "Mexa-se para começar". Começa quando o gato anda, pula, dá dash, agacha ou bate com a espada
+  (W e S sozinhos não contam; as teclas estão em TECLAS_QUE_INICIAM_A_FASE no config.js).
+  O tempo parado não conta nos pontos. Pra NÃO parar de novo depois de morrer:
+  CONGELAR_AO_RENASCER = false no config.js. O código está em nucleo/controle-de-fases.js
+  (congelarFase, iniciarFase, jogadorComecouAMexer) e no começo do atualizarJogo (principal.js).
+
+ESPADA E INIMIGOS (como eles se conversam)
+  A cada frame, o principal.js faz, nesta ordem:
+    1) moverJogador()                   o gato se mexe
+    2) atualizarAtaqueEspada()          o golpe avança um frame
+    3) atualizarInimigos()              os inimigos se mexem / atiram (e entram novos da fila) - só com a fase iniciada
+    4) resolverEspadaContraInimigos()   (combate.js) a espada encostou em algum inimigo?
+    5) verificarMorte()                 o gato encostou em espinho, buraco, tiro ou inimigo?
+  O passo 4 vem ANTES do 5 de propósito: se o golpe pegou o inimigo neste frame,
+  ele some primeiro e não chega a machucar o gato.
+
+  Regras:
+    - Golpe de espada que encosta num inimigo remove ele na hora (todos têm 1 de vida).
+    - Voador some junto com os tiros que ainda estavam no ar.
+    - Os TIROS do voador também são atingidos: golpe que encosta no tiro faz ele sumir
+      e ele não acerta o gato (rebater tiro não dá quique).
+    - Suicida morto antes de explodir não explode (nem se já estava na contagem).
+    - Inimigo removido abre vaga e o próximo da fila entra (limite: LIMITE_INIMIGOS_ATIVOS).
+    - Golpe PRA BAIXO acertando inimigo com o gato no ar = quique (pulo extra).
+      Pra desligar: ESPADA_FATOR_POGO = 0 no config.js.
+    - Quando o gato morre, os inimigos que sobraram voltam ao começo.
+      (Os que você já tinha derrotado NÃO voltam, igual ao seu código original.)
+    - O golpe pro lado sai na mesma altura onde a espada é desenhada
+      (ESPADA_ALTURA_CENTRO), então o que você vê é o que acerta.
+
+OS INIMIGOS (tipos e como aparecem)
+  corredor   corre pela plataforma e vira na parede, na borda ou no abismo.
+             opções: velocidade, direcao (-1 ou 1)
+  voador     patrulha no ar e atira. opções: velocidade, distanciaPatrulha, limiteEsquerdo,
+             limiteDireito, intervaloDisparo, velocidadeProjetil,
+             direcaoDisparo ('jogador' = padrão: UM tiro mirado no gato; 'frenteBaixo' e 'lequeBaixo' só se a fase pedir)
+  suicida    a BOMBA: fica parada até o gato chegar perto (raioDeteccao), aí persegue o gato sem
+             atravessar paredes/plataformas. Só quando ENCOSTA no gato o pavio queima (tempoExplosao)
+             e ela explode (área de 2 blocos). Espada antes disso = some sem explodir.
+             opções: velocidade, raioDeteccao, tempoExplosao, tamanhoBloco
+             (padrões em js/config/config.js, seção "Inimigo bomba")
+
+  Por padrão cada fase sorteia seus inimigos sozinha (geracao.js):
+    - quantidade: a CADA vez que a fase carrega o jogo sorteia um número entre
+      INIMIGOS_MINIMO_POR_FASE (1) e INIMIGOS_MAXIMO_POR_FASE (5). Então nem toda fase nasce com 5.
+    - 5 é o TETO: nunca nascem mais que isso numa fase, nem escrevendo mais à mão na fase
+      ou colocando quantidadeInimigos maior. (Pra permitir fase sem inimigo, ponha o mínimo em 0.)
+    - no máximo 2 do MESMO tipo por fase (INIMIGOS_MAXIMO_DO_MESMO_TIPO), também vale pros escritos à mão.
+      Por isso fases com poucos tipos têm menos inimigos: com só corredor (fases 1-2) o máximo é 2,
+      com corredor + voador (fases 3-5) é 4, e a partir da fase 6 (3 tipos) chega ao teto de 5.
+    - tipos: fases 1-2 só corredor; o voador entra no sorteio na fase 3 e o suicida na fase 6.
+    - eles nascem longe do começo e da porta, em cima das plataformas (voador: na metade de cima).
+    - a velocidade aumenta um pouquinho a cada fase.
+  Pra controlar isso, a fase aceita: inimigos (fixos), quantidadeInimigos, limiteInimigosAtivos,
+  tiposInimigos, spawnAleatorioInimigos, pontosSpawnInimigos, permitirSobreposicaoInimigos,
+  direcaoDisparoInimigos. Está tudo explicado no js/fases/_lista.js.
+  Os números (distâncias, quantidades, velocidades) estão no config.js nas seções "Inimigos".
+
+  ATENÇÃO: a fase 1 ainda está com a configuração de teste do seu commit "Inimigos"
+  (só voadores, sobreposição liberada, porta fugindo).
+  Pra voltar ao normal, apague essas linhas do js/fases/fase01.js.
+
+COMO CRIAR UM INIMIGO NOVO (exemplo: bolinha que fica parada)
+  1) Crie js/inimigos/bolinha.js:
+
+       registrarInimigo('bolinha', {
+         preparar: function (inimigo) {
+           definirPadrao(inimigo, 'largura', 24);
+           definirPadrao(inimigo, 'altura', 24);
+           inimigo.xInicial = inimigo.x;
+           inimigo.yInicial = inimigo.y;
+         },
+         atualizar: function (inimigo) { },
+         mata: function (inimigo) { return colidiu(jogador, inimigo); },
+         desenhar: function (inimigo) { desenharRetangulo(inimigo, '#00b894'); },
+         resetar: function (inimigo) { inimigo.x = inimigo.xInicial; inimigo.y = inimigo.yInicial; }
+       });
+
+  2) No index.html, adicione <script src="js/inimigos/bolinha.js"></script> junto dos outros inimigos.
+  3) Em js/config/config.js, adicione o tamanho dela em INIMIGO_TAMANHOS: bolinha: { largura: 24, altura: 24 }
+  4) Use numa fase: inimigos: [ { tipo: 'bolinha', x: 300, y: 376 } ]
+     ou deixe sortear: tiposInimigos: ['bolinha'] (aí também coloque a bolinha no sorteio do geracao.js).
+  A espada já funciona nela sem mudar nada: qualquer inimigo da lista é atingido.
+
+DASH
+  Tecla Q (TECLA_DASH). Dá um impulso rápido pro lado que você está apertando
+  (ou pra onde o gato olha) com um pulinho. Recarrega em DASH_RECARGA frames.
+  Está na função atualizarDash do js/personagens/jogador.js.
+
+CENÁRIO
+  O fundo é a imagem img/cenario/cenario.jpg (CENARIO_PADRAO em js/config/config.js).
+  Uma fase pode ter um fundo próprio:  cenario: 'img/cenario/outro.jpg'
+  O chão é desenhado com terra e grama (função desenharChao em js/nucleo/desenho.js).
+  Numa plataforma, estilo: 'pedra' desenha um bloco de pedra (bom pra teto baixo).
+
+AGACHAR
+  - agachado: true      -> o gato fica agachado a fase inteira (fase 21).
+  - podeAgachar: true   -> segure Shift pra agachar (fases 22 e 23). Na verdade o Shift
+                           funciona em TODAS as fases (TECLA_AGACHAR no config.js).
+  Agachado, a caixa de colisão fica com 22px de altura (ALTURA_AGACHADO) em vez de 30
+  e o gato anda a 40% da velocidade (FATOR_VELOCIDADE_AGACHADO). Debaixo de um teto
+  baixo ele não consegue levantar (só levanta quando tiver espaço).
+  Pra um túnel que só dá pra passar agachado, o vão precisa ficar entre 22 e 29px.
+  Nas fases 21 a 23 o vão é de 22px (plataforma de pedra com y + altura = 378,
+  e o chão começa em y = 400).
+
+MORTE
+  Quando o gato morre ele dá um pulinho e cai (animação de morte, DURACAO_MORTE frames)
+  e só então volta pro início. Nesse momento as armadilhas voltam ao normal: o espinho
+  que aparece quando o gato chega perto SOME de novo (os que têm visivel: true
+  continuam à mostra), os inimigos que sobraram voltam ao começo e a espada é cancelada.
+  Se o gato cair num buraco, ele volta direto, sem animação.
+
+ANIMAÇÕES DO GATO
+  Tudo está em js/personagens/jogador.js, na parte ANIMAÇÕES (no começo do arquivo).
+  - parado / andando / pulando / agachado / agachadoAndando / morto são listas de desenhos. Troque a ordem ou os arquivos
+    pra mudar a animação. Ex: andando: gato3, gato2, gato4, gato2 (e volta ao começo).
+  - Velocidade da animação: FRAMES_POR_QUADRO em js/config/config.js (menor = mais rápido).
+  - Tamanho do gato na tela: ALTURA_SPRITE_JOGADOR em js/config/config.js.
+  - A caixa de colisão (24x30) não muda com o tamanho do desenho. Pra ver ela,
+    coloque MOSTRAR_HITBOX = true.
+  - Quando ele anda pra esquerda, o desenho é espelhado automaticamente.
+  - Efeitos automáticos: respira parado, quica a cada passo, estica no pulo e amassa ao pousar.
+  - Se a imagem não carregar, o jogo volta a mostrar o quadradinho azul.
+
+A ORDEM DOS <script> NO index.html IMPORTA
+  Cada arquivo só pode usar o que foi carregado ANTES dele (no momento em que o arquivo roda).
+  Regras: o _registro.js (de armadilhas ou de inimigos) vem antes dos arquivos do seu tipo,
+  o _lista.js vem antes das fases e o principal.js é sempre o último.
+
+COMO CRIAR UMA FASE NOVA
+  1) Copie um arquivo, por exemplo js/fases/fase23.js, e salve como fase24.js.
+  2) Mude o que está dentro do FASES.push({ ... });
+  3) No index.html, adicione <script src="js/fases/fase24.js"></script>
+     depois da fase23 e antes do principal.js.
+  (Pra mudar a ordem das fases, mude a ordem dessas linhas no index.html.)
+
+COMO CRIAR UMA ARMADILHA NOVA (exemplo: lava)
+  1) Crie js/armadilhas/lava.js:
+
+       registrarArmadilha('lava', {
+         mata: function (a) { return true; },
+         desenhar: function (a) { desenharRetangulo(a, '#ff6b00'); }
+       });
+
+  2) No index.html, adicione <script src="js/armadilhas/lava.js"></script>
+     junto com as outras armadilhas.
+  3) Use numa fase:
+       { tipo: 'lava', x: 300, y: 380, largura: 100, altura: 20 }
+
+  O que uma armadilha pode ter (tudo opcional): preparar, atualizar, solida,
+  aoPisar, mata, desenhar, aoMorrer. Cada uma está explicada no começo do
+  arquivo js/armadilhas/_registro.js.
+
+SE ALGO NÃO FUNCIONAR
+  Aperte F12 no navegador e abra a aba Console. Erro em vermelho = o nome do
+  arquivo e a linha onde deu problema. Aviso amarelo "Tipo de armadilha
+  desconhecido" ou "Tipo de inimigo desconhecido" = o nome do tipo na fase está
+  errado ou o arquivo dele não está no index.html.
+  Inimigo que a espada não acerta? Ligue MOSTRAR_HITBOX = true no config.js e veja
+  se a caixa branca (espada) encosta na caixa vermelha (inimigo).
+
+ATALHO DE DESENVOLVIMENTO
+  Ctrl+F1 passa de fase na hora (vem do seu commit "Inimigos", está em js/nucleo/teclado.js).
+  Lembre de tirar antes de entregar o jogo, porque dá pra pular o jogo todo com ele.

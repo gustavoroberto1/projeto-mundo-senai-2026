@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Limbo</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      display: block;
+      /* ocupa o máximo da janela mantendo a proporção 16:9 */
+      width: min(100vw, calc(100vh * 16 / 9));
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="tela" width="800" height="450"></canvas>
+
+  <!-- Scripts clássicos: a ordem importa porque compartilham variáveis -->
+  <script src="./config.js"></script>
+  <script src="./fase.js"></script>
+  <script src="./jogador.js"></script>
+  <script src="./utils.js"></script>
+  <script src="./teclado.js"></script>
+  <script src="./monstro.js"></script>
+  <script src="./rush.js"></script>
+  <script src="./cenario.js"></script>
+  <script src="./objetos.js"></script>
+  <script src="./cidade.js"></script>
+  <script src="./casa.js"></script>
+  <script src="./caverna.js"></script>
+    <script src="./mina.js"></script>
+    <script src="./sombras.js"></script>
+  <script src="./aranha.js"></script>
+  <script src="./jogo.js"></script>
+  <script src="./menu.js"></script>
+  <script src="./script.js"></script>
+
+  <!-- Tecla F alterna tela cheia -->
+  <script>
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "KeyF") {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      }
+    });
+  </script>
+</body>
+</html>
