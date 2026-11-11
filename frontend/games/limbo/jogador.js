@@ -123,6 +123,12 @@ let camera;
 let cameraY = 0;       // altura da câmera (só muda nas fases verticais)            // quanto a tela já "andou" para a direita
 let contador;          // tempo da tela escura quando morre
 let mortes = 0;
+let faseMaisAlta = 0;  // quantas fases já foram concluídas (usado para a pontuação do Arcade)
+
+// Pontuação atual: 500 por fase concluída, menos 10 por morte (nunca negativa).
+function pontuacaoAtual() {
+  return Math.max(0, faseMaisAlta * 500 - mortes * 10);
+}
 
 function reiniciar() {
   jogador.h = ALTURA_EM_PE;

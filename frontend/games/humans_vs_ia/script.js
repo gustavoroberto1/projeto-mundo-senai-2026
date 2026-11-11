@@ -18,24 +18,24 @@ var ordem = Object.keys(tipos);
 // resistência: quanto mais caro, mais vida (custo x 0,4). O escudo é a muralha e tem o triplo.
 for (var kk in tipos) tipos[kk].vida = Math.round(tipos[kk].custo * 0.4 * (tipos[kk].modo == 'escudo' ? 3 : 1));
 
-// skins dos robôs (os pesos somam 100)
+// skins dos robôs (os pesos somam 100); "dano" é o dano base por golpe (escala com a onda, veja vidaExtra())
 var skins = [
-  { nome: 'padrao', peso: 35, vida: 30 }, { nome: 'destruida', peso: 25, vida: 20 },
-  { nome: 'bruxo', peso: 8, vida: 30 }, { nome: 'nadador', peso: 8, vida: 30 }, { nome: 'pirata', peso: 8, vida: 30 },
-  { nome: 'professor', peso: 8, vida: 30 }, { nome: 'fazendeiro', peso: 8, vida: 30 }
+  { nome: 'padrao', peso: 35, vida: 30, dano: 5 }, { nome: 'destruida', peso: 25, vida: 20, dano: 3 },
+  { nome: 'bruxo', peso: 8, vida: 30, dano: 5 }, { nome: 'nadador', peso: 8, vida: 30, dano: 5 }, { nome: 'pirata', peso: 8, vida: 30, dano: 5 },
+  { nome: 'professor', peso: 8, vida: 30, dano: 5 }, { nome: 'fazendeiro', peso: 8, vida: 30, dano: 5 }
 ];
 
 var jogo = document.getElementById('jogo'), campo = document.getElementById('campo'), aviso = document.getElementById('aviso');
 var sois = 100, abates = 0, pontos = 0, recorde = 0, vel = 1, selecionado = '';
-var pausado = false, fim = false, proxSol = 1.5, proxRobo = 10;
+var pausado = true, fim = false, proxSol = 1.5, proxRobo = 10; // começa pausado: a tela inicial do Arcade libera ao clicar em Jogar
 var onda = 1, restam = 0, pausaOnda = 0, PONTOS_ONDA = 100; // ondas: robôs ainda por aparecer, pausa entre ondas
 // dificuldade por onda: cada uma é mais rápida, com robôs mais frequentes, mais numerosos e mais resistentes
 // ondas infinitas: a dificuldade nunca para de subir (os limites só evitam valores absurdos)
-function velRobo() { return Math.min(220, 22 + (onda - 1) * 4.5); }         // px/s
+function velRobo() { return Math.min(260, 22 + (onda - 1) * 5); }          // px/s
 function intervaloRobo() { return Math.max(0.5, 7 / (1 + (onda - 1) * 0.12)); } // s entre levas (cai sem chegar a zero)
 function tamanhoLeva() { return Math.min(12, 1 + Math.floor((onda - 1) / 2)); }
 function totalOnda(n) { return 4 + n * 2 + Math.floor(n * n / 8); }          // robôs da onda
-function vidaExtra() { return 1 + (onda - 1) * 0.08; }                       // +8% de vida por onda
+function vidaExtra() { return 1 + (onda - 1) * 0.12; }                       // +12% de vida (e de dano, veja criarRobo) por onda
 var grade = [], defensores = [], robos = [], tiros = [], solList = [], cardEls = {};
 try { recorde = parseInt(localStorage.getItem('recordeHumansVsIA')) || 0; } catch (e) {}
 
@@ -163,7 +163,8 @@ function criarRobo() {
   el.innerHTML = '<div class="sombra"></div><div class="corpo"><img src="img/robo_' + skins[i].nome + '.png"></div>';
   var y = Y0 + row * CH + CH - rh - 4; // pés na base do quadrado, centrado na horizontal
   mover(el, W, y);
-  robos.push({ w: rw, row: row, x: W, y: y, hp: Math.round(skins[i].vida * vidaExtra()), el: el, corpo: el.lastChild, img: el.lastChild.firstChild, ataque: 0 });
+  var forca = vidaExtra(); // mesma escala para vida e dano: robôs de ondas avançadas são mais resistentes E batem mais forte
+  robos.push({ w: rw, row: row, x: W, y: y, hp: Math.round(skins[i].vida * forca), dano: Math.max(1, Math.round(skins[i].dano * forca)), el: el, corpo: el.lastChild, img: el.lastChild.firstChild, ataque: 0 });
 }
 
 function temAlvo(d) { // há robô na linha, à frente e dentro do alcance?
@@ -208,10 +209,10 @@ function acertar(o, b) {
 function atualizar(dt) {
   var i, j;
 
-  // sóis caindo do céu
+  // sóis caindo do céu (intervalo maior que antes: a economia livre não pode sozinha pagar um exército)
   proxSol -= dt;
   if (proxSol <= 0) {
-    proxSol = 4;
+    proxSol = 7;
     criarSol(aleatorio(X0, X0 + COLS * CW - 60), -60, Y0 + Math.floor(Math.random() * ROWS) * CH + aleatorio(20, 50));
   }
   // ondas: pausa curta entre elas; depois os robôs aparecem em levas até acabar a cota da onda
@@ -289,7 +290,7 @@ function atualizar(dt) {
     rb.el.className = parar ? 'ent robo parado' : 'ent robo'; // parado = atacando
     if (alvo) {
       rb.ataque -= dt;
-      if (rb.ataque <= 0) { alvo.hp -= 4; rb.ataque = 1; }
+      if (rb.ataque <= 0) { alvo.hp -= rb.dano; rb.ataque = 1; } // dano pelo "poder" do robô (escala com a onda), não mais um valor fixo por tempo
     } else {
       var nx = rb.x - velRobo() * dt; // acelera a cada onda
       var ncx = nx + rb.w / 2, ncol = Math.floor((ncx - X0) / CW);
@@ -322,9 +323,7 @@ function atualizar(dt) {
 
 function terminar() {
   fim = true;
-  aviso.style.display = 'flex';
-  aviso.innerHTML = 'OS ROBÔS INVADIRAM!<div style="font-size:30px">Onda: ' + onda + ' | Abates: ' + abates + ' | Pontos: ' + pontos + '</div><button id="btnReiniciar">Jogar de novo</button>';
-  document.getElementById('btnReiniciar').onclick = function () { location.reload(); };
+  ArcadeShell.gameOver(pontos, { title: 'OS ROBÔS INVADIRAM! (Onda ' + onda + ', ' + abates + ' abates)' });
 }
 
 // ---------- botões ----------

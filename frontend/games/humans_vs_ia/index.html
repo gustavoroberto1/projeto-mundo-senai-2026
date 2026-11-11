@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Humans vs IA</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../../css/game-shell.css">
 </head>
 <body>
 <div id="jogo">
@@ -22,6 +23,20 @@
   <div id="bannerOnda"></div>
   <div id="aviso"></div>
 </div>
+<script src="../../js/config.js"></script>
+<script src="../../js/arcade-sdk.js"></script>
+<script src="../../js/game-shell.js"></script>
+<script>window.SENAI_ARCADE_GAME_ID = "HUMANS_VS_IA";</script>
 <script src="script.js"></script>
+<script>
+  ArcadeShell.init({
+    gameId: "HUMANS_VS_IA",
+    gameName: "Humans vs IA",
+    description: "Defenda sua base contra a invasão dos robôs.",
+    accentColor: "#29f4e1",
+    onPlay: function () { pausado = false; },
+    getScore: function () { return pontos; },
+  });
+</script>
 </body>
 </html>

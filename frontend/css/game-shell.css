@@ -1,0 +1,142 @@
+/* SENAI Arcade — Game Shell (overlay compartilhado pelos jogos) */
+#arcade-shell-root {
+  --as-accent: #29f4e1; /* sobrescrita por jogo via ArcadeShell.init({ accentColor }) */
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  pointer-events: none;
+}
+#arcade-shell-root .as-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(3, 6, 17, 0.82);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  pointer-events: auto;
+  font-family: Rajdhani, Arial, sans-serif;
+}
+#arcade-shell-root .as-modal {
+  position: relative;
+  width: min(480px, 100%);
+  border: 1px solid color-mix(in srgb, var(--as-accent) 55%, #3c7890);
+  background: linear-gradient(135deg, rgba(20, 36, 59, 0.97), rgba(16, 19, 41, 0.98));
+  padding: 34px 30px 28px;
+  text-align: center;
+  color: #f5f6ff;
+  box-shadow: 0 0 0 7px #0c1224a8, 0 0 75px color-mix(in srgb, var(--as-accent) 16%, transparent);
+}
+#arcade-shell-root .as-tag {
+  font-size: 13px;
+  color: var(--as-accent);
+  letter-spacing: 4px;
+  font-weight: 700;
+}
+#arcade-shell-root .as-title,
+#arcade-shell-root .as-title-records,
+#arcade-shell-root .as-title-go {
+  font: clamp(16px, 2.4vw, 23px)/1.5 "Press Start 2P", monospace;
+  margin: 14px 0;
+  color: white;
+}
+#arcade-shell-root .as-desc,
+#arcade-shell-root .as-player {
+  font-size: 16px;
+  color: #b9c8e0;
+  line-height: 1.35;
+  margin: 8px 0;
+}
+#arcade-shell-root .as-player-name {
+  color: var(--as-accent);
+}
+#arcade-shell-root .as-btn {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 14px;
+  margin-top: 10px;
+  font: 700 16px Rajdhani, Arial;
+  letter-spacing: 1px;
+  cursor: pointer;
+  color: #071524;
+  background: #d9e4f5;
+}
+#arcade-shell-root .as-btn.as-primary {
+  background: var(--as-accent);
+}
+#arcade-shell-root .as-btn.as-primary:hover {
+  filter: brightness(1.1);
+}
+#arcade-shell-root .as-btn.as-back {
+  background: #3d4d6b;
+  color: white;
+}
+#arcade-shell-root .as-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+#arcade-shell-root .as-score {
+  font: clamp(26px, 5vw, 42px) "Press Start 2P", monospace;
+  color: #ffe276;
+  margin: 18px 0 10px;
+}
+#arcade-shell-root .as-save-status {
+  font-size: 15px;
+  color: #a4f7dd;
+  min-height: 20px;
+  margin-bottom: 6px;
+}
+#arcade-shell-root .as-leaderboard {
+  text-align: left;
+  margin: 16px 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+#arcade-shell-root .as-empty {
+  text-align: center;
+  color: #b9c8e0;
+  font-size: 15px;
+}
+#arcade-shell-root .as-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #263252;
+  font-size: 15px;
+  align-items: center;
+}
+#arcade-shell-root .as-row.as-me {
+  background: #1b2c45;
+  color: var(--as-accent);
+}
+#arcade-shell-root .as-score-col,
+#arcade-shell-root .as-score {
+  font-weight: 700;
+}
+#arcade-shell-root .as-confirm-msg {
+  font-size: 18px;
+  color: #f5f6ff;
+  line-height: 1.4;
+  margin: 10px 0 20px;
+}
+#arcade-shell-root .as-exit-floating {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 999998;
+  pointer-events: auto;
+  border: 1px solid #697393;
+  background: rgba(28, 40, 67, 0.85);
+  color: #fff;
+  font: 700 14px Rajdhani, Arial;
+  padding: 8px 14px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+#arcade-shell-root .as-exit-floating:hover {
+  background: #ff3b91;
+  border-color: #ff3b91;
+}

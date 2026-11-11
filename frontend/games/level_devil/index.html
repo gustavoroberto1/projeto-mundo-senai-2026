@@ -4,18 +4,13 @@
 <meta charset="UTF-8">
 <title>Troll Devil</title>
 <link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="../../css/game-shell.css">
+<script src="../../js/config.js"></script>
+<script src="../../js/arcade-sdk.js"></script>
+<script src="../../js/game-shell.js"></script>
+<script>window.SENAI_ARCADE_GAME_ID = "LEVEL_DEVIL";</script>
 </head>
 <body>
-
-<div id="menu">
-  <h1> Troll Devil</h1>
-  <p>Setas ou AD para andar, espaço para pular, Shift para agachar, Q para dar um dash,<br>clique esquerdo para atacar com a espada (segure W/S + clique para bater pra cima/baixo), R para reiniciar a fase,<br>Ctrl+F2 para mostrar/ocultar as hitboxes. Não confie em nada.</p>
-  <input id="nick" maxlength="12" placeholder="Seu nickname">
-  <button id="btnJogar">Jogar</button>
-  <div id="erro"></div>
-  <h3>🏆 Ranking</h3>
-  <ol id="rankMenu"></ol>
-</div>
 
 <canvas id="game" width="800" height="450"></canvas>
 <button id="btnReiniciar">🔄 Reiniciar fase (R)</button>
@@ -104,5 +99,16 @@
 
 <!-- 8) Principal: SEMPRE por último (ele abre o menu) -->
 <script src="js/nucleo/principal.js"></script>
+
+<script>
+  ArcadeShell.init({
+    gameId: "LEVEL_DEVIL",
+    gameName: "Troll Devil",
+    description: "Nunca confie no chão sob seus pés. Setas/AD para andar, espaço pula, Shift agacha, Q faz um dash, clique ataca com a espada.",
+    accentColor: "#ffe276",
+    onPlay: comecarJogo,
+    getScore: function () { return pontosTotais; },
+  });
+</script>
 </body>
 </html>

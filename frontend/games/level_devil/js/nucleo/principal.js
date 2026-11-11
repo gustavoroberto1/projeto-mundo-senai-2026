@@ -45,15 +45,37 @@ function verificarMorte() {
   return false;
 }
 
-// Loop principal: atualiza e desenha um frame e agenda o próximo enquanto
+// Loop principal: atualiza e desenha a cada frame e agenda o próximo enquanto
 // a partida estiver ativa.
-function loopDoJogo() {
-  if (!jogando) return;
+//
+// A lógica roda em passos de tempo FIXOS (independente da taxa de atualização
+// da tela do jogador): sem isso, o jogo rodava mais rápido em monitores de
+// 120/144Hz do que nos 60Hz originais, porque cada frame do navegador
+// disparava um passo inteiro de física/movimento.
+const PASSO_FIXO_MS = 1000 / 60;      // 60 "ticks" de lógica por segundo
+const MAX_PASSOS_POR_FRAME = 5;       // evita "espiral da morte" se a aba travar
+let acumuladorLoop = 0;
+let ultimoFrameLoop = 0;
 
-  if (transicao.ativa) {
-    atualizarTransicao();           // passando de fase: o jogo fica parado
-  } else {
-    atualizarJogo();
+function loopDoJogo(agora) {
+  if (!jogando) return;
+  if (typeof agora !== 'number') agora = performance.now();
+
+  if (!ultimoFrameLoop) ultimoFrameLoop = agora;
+  let delta = agora - ultimoFrameLoop;
+  ultimoFrameLoop = agora;
+  if (delta > 250) delta = 250;       // aba em segundo plano / lag: não tenta recuperar tudo de uma vez
+  acumuladorLoop += delta;
+
+  let passos = 0;
+  while (acumuladorLoop >= PASSO_FIXO_MS && passos < MAX_PASSOS_POR_FRAME) {
+    if (transicao.ativa) {
+      atualizarTransicao();         // passando de fase: o jogo fica parado
+    } else {
+      atualizarJogo();
+    }
+    acumuladorLoop -= PASSO_FIXO_MS;
+    passos++;
   }
 
   if (jogando) {                    // o jogo pode ter acabado dentro do update
@@ -64,5 +86,4 @@ function loopDoJogo() {
   requestAnimationFrame(loopDoJogo);
 }
 
-// Começa mostrando o menu
-mostrarMenu();
+// A tela inicial é mostrada pelo ArcadeShell (veja o init() no index.html).

@@ -1,32 +1,15 @@
 // =====================================================================
-//  TELAS: menu, início do jogo e tela final
+//  TELAS: início do jogo e tela final
+//  (a tela inicial agora é o ArcadeShell — veja o init() no index.html)
 // =====================================================================
-function mostrarMenu() {
-  // Esconde a partida/tela final e restaura a interface inicial.
-  pararConfete();
-  telaFim.classList.remove('mostrar');
-  botaoReiniciar.style.display = 'none';
-  telaFim.style.display = 'none';
-  canvas.style.display = 'none';
-  telaMenu.style.display = 'block';
-  campoApelido.value = '';
-  mostrarRanking('rankMenu');
-}
-
 function comecarJogo() {
-  // Remove espaços extras antes de validar e guardar o apelido.
-  const texto = campoApelido.value.trim();
-  if (texto.length < 2) {
-    textoErro.textContent = 'Nickname precisa ter pelo menos 2 letras.';
-    return;
-  }
-
-  apelido = texto;
+  // O jogador já foi identificado na plataforma do Arcade: usa o mesmo nickname.
+  const jogadorArcade = window.ArcadeShell && ArcadeShell.player();
+  apelido = (jogadorArcade && jogadorArcade.nickname) || 'Anônimo';
   pontosTotais = 0;
   mortesTotais = 0;
-  textoErro.textContent = '';
+  arcadeInicioTs = Date.now();
 
-  telaMenu.style.display = 'none';
   canvas.style.display = 'block';
   botaoReiniciar.style.display = 'inline-block';
   document.activeElement.blur();    // tira o foco do campo de texto pra as teclas funcionarem
@@ -45,10 +28,13 @@ function comecarJogo() {
 }
 
 // Chamada quando o gato passa da ÚLTIMA fase: mostra a tela de vitória
-function terminarJogo() {
+async function terminarJogo() {
   jogando = false;
-  // Persiste o resultado e apresenta o resumo junto com a posição no ranking.
-  const resultadoRanking = salvarPontuacao();
+
+  // A partida já acabou e vai ser salva: esconde o botão flutuante "Sair" do
+  // ArcadeShell para não oferecer salvar a mesma pontuação de novo.
+  const botaoSairArcade = document.querySelector('#arcade-shell-root .as-exit-floating');
+  if (botaoSairArcade) botaoSairArcade.style.display = 'none';
 
   botaoReiniciar.style.display = 'none';
   canvas.style.display = 'none';
@@ -59,14 +45,18 @@ function terminarJogo() {
 
   document.getElementById('resultado').textContent =
     apelido + ': ' + pontosTotais + ' pontos, ' + mortesTotais + ' mortes';
+  document.getElementById('fimPosicao').textContent = 'Enviando pontuação para o dashboard...';
+
+  // Persiste o resultado (dashboard do Arcade + ranking local) e mostra a posição.
+  const resultado = await salvarResultadoArcade();
 
   let textoPosicao = '';
-  if (!resultadoRanking.salva) {
-    textoPosicao = 'Não foi possível salvar sua pontuação no ranking.';
-  } else if (resultadoRanking.posicao === 1) {
-    textoPosicao = '🥇 Novo recorde! Você é o 1º do ranking!';
-  } else if (resultadoRanking.posicao > 0) {
-    textoPosicao = 'Você ficou em ' + resultadoRanking.posicao + 'º lugar no ranking!';
+  if (!resultado.enviado) {
+    textoPosicao = 'Não foi possível enviar ao dashboard (sem conexão). Pontuação salva só neste aparelho.';
+  } else if (resultado.isNewRecord) {
+    textoPosicao = '🏆 Novo recorde pessoal salvo no dashboard!';
+  } else {
+    textoPosicao = 'Pontuação enviada ao dashboard!';
   }
   document.getElementById('fimPosicao').textContent = textoPosicao;
 
@@ -75,13 +65,9 @@ function terminarJogo() {
 }
 
 // Associa as ações da interface aos respectivos botões.
-botaoJogar.onclick = comecarJogo;
-botaoNovoJogador.onclick = mostrarMenu;
+// "Próximo jogador": recarrega a página, que volta à tela inicial do ArcadeShell.
+botaoNovoJogador.onclick = function () { location.reload(); };
 botaoReiniciar.onclick = function () {
   reiniciarFase();
   botaoReiniciar.blur();     // evita que apertar espaço "clique" no botão sem querer
 };
-
-campoApelido.addEventListener('keydown', function (evento) {
-  if (evento.key === 'Enter') comecarJogo();
-});

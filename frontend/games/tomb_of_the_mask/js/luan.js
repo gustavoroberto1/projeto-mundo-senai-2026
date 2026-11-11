@@ -206,7 +206,7 @@ function chegarNoPortal() {
         estado = "fim";
 
         setTimeout(async () => {
-            await salvarPontuacao();
+            await salvarResultadoArcade();
             mostrarTelaRanking(true);
         }, 900);
 

@@ -34,11 +34,16 @@ function atualizar(dt) {
     if (teclas["Enter"]) {
       if (numeroFase < FASES.length - 1) {
         carregarFase(numeroFase + 1);
+        reiniciar();
       } else {
+        if (window.ArcadeShell) {
+          ArcadeShell.gameOver(pontuacaoAtual(), { title: "Você escapou do Limbo!" });
+        }
         mortes = 0;
+        faseMaisAlta = 0;
         carregarFase(0);
+        reiniciar();
       }
-      reiniciar();
     }
     return;
   }
@@ -129,7 +134,10 @@ function atualizar(dt) {
   if (jogador.y > (faseAtual.limiteQueda || ALTURA + 80)) morrer();   // caiu no buraco
 
   // --- chegou na luz? ---
-  if (colide(jogador, luz)) estado = "venceu";
+  if (colide(jogador, luz) && estado !== "venceu") {
+    estado = "venceu";
+    faseMaisAlta = Math.max(faseMaisAlta, numeroFase + 1); // conta a fase que acabou de terminar, não a próxima
+  }
 
   // --- animação e câmera ---
   if (jogador.vx !== 0) jogador.anim += dt;
@@ -306,6 +314,7 @@ function desenhar() {
     ctx.textAlign = "left";
     ctx.fillText("Mortes: " + mortes, 16, 28);
     ctx.fillText("Fase " + (numeroFase + 1), 16, 48);
+    ctx.fillText("Pontos: " + pontuacaoAtual(), 16, 68);
   }
 
   if (estado === "morto") {

@@ -1,6 +1,8 @@
-body{margin:0;background:#111;color:#eee;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+body{margin:0;background:#111;color:#eee;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
 canvas{background:#1c1c2b;border:2px solid #444;display:none}
-#menu,#fim{text-align:center}
+/* área jogável preenchendo a janela, do mesmo jeito que os outros jogos (mantém a proporção 800x450) */
+#game{width:min(100vw, calc(100vh * 16 / 9));height:auto;aspect-ratio:16 / 9;}
+#fim{text-align:center}
 #fim{display:none;position:relative;z-index:2}
 input,button{font-size:18px;padding:8px 12px;margin:6px;border-radius:6px;border:0}
 button{background:#e63946;color:#fff;cursor:pointer}

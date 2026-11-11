@@ -27,6 +27,7 @@
       aspect-ratio: 16 / 9;
     }
   </style>
+  <link rel="stylesheet" href="../../css/game-shell.css">
 </head>
 <body>
   <canvas id="tela" width="800" height="450"></canvas>
@@ -49,7 +50,22 @@
   <script src="./aranha.js"></script>
   <script src="./jogo.js"></script>
   <script src="./menu.js"></script>
+
+  <script src="../../js/config.js"></script>
+  <script src="../../js/arcade-sdk.js"></script>
+  <script src="../../js/game-shell.js"></script>
   <script src="./script.js"></script>
+
+  <script>
+    ArcadeShell.init({
+      gameId: "LIMBO",
+      gameName: "Limbo",
+      description: "Atravesse um mundo cheio de mistérios sem ser pego.",
+      accentColor: "#bdc9df",
+      onPlay: function () {},
+      getScore: function () { return pontuacaoAtual(); },
+    });
+  </script>
 
   <!-- Tecla F alterna tela cheia -->
   <script>
