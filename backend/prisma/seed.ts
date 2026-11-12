@@ -10,7 +10,7 @@ const games = [
   },
   {
     id: "TOMB_OF_THE_MASK",
-    name: "Tomb of the Mask",
+    name: "Run Frog",
     description: "Corra, colete e escape do labirinto.",
   },
   {
@@ -20,7 +20,7 @@ const games = [
   },
   {
     id: "LEVEL_DEVIL",
-    name: "Level Devil",
+    name: "Troll Cat",
     description: "Nunca confie no chão sob seus pés.",
   },
 ];

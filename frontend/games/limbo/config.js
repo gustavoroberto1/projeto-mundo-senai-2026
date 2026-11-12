@@ -13,10 +13,3 @@ let depurar = false;
 
 const fundo = new Image();
 fundo.src = "fundo.png";
-
-const PONTOS_INICIAIS = 20000;
-const PONTOS_POR_MORTE = 250;
-
-function pontos() {
-  return Math.max(0, PONTOS_INICIAIS - mortes * PONTOS_POR_MORTE);
-}

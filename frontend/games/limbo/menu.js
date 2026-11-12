@@ -5,7 +5,34 @@
 // =====================================================
 const TITULO_JOGO = "LIMBO";
 
-let faseMaisAlcancada = 0;
+// Progresso salvo por jogador (localStorage): sem isso, toda vez que a página
+// recarrega (ex.: ao sair e escolher o jogo de novo) as fases liberadas voltavam
+// a zero, mesmo quem já tivesse passado da fase 1.
+function idJogadorAtual() {
+  try {
+    const jog = JSON.parse(sessionStorage.getItem("senaiArcadePlayer") || "null");
+    return (jog && jog.id) || "anonimo";
+  } catch (e) {
+    return "anonimo";
+  }
+}
+function chaveProgressoLimbo() {
+  return "limbo:faseMaisAlcancada:" + idJogadorAtual();
+}
+function carregarFaseMaisAlcancada() {
+  const salvo = Number(localStorage.getItem(chaveProgressoLimbo()));
+  return Number.isFinite(salvo) ? salvo : 0;
+}
+function definirFaseMaisAlcancada(valor) {
+  faseMaisAlcancada = Math.max(faseMaisAlcancada, valor);
+  try {
+    localStorage.setItem(chaveProgressoLimbo(), String(faseMaisAlcancada));
+  } catch (e) {
+    // localStorage indisponível (ex.: modo privado): o progresso só dura esta sessão.
+  }
+}
+
+let faseMaisAlcancada = carregarFaseMaisAlcancada();
 // Quando quiser bloquear fases, mude aqui (ex.: return i <= faseMaisAlcancada;)
 function faseLiberada(i) {
   return i <= faseMaisAlcancada;

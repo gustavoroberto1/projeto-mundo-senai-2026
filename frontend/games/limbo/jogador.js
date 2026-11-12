@@ -125,9 +125,15 @@ let contador;          // tempo da tela escura quando morre
 let mortes = 0;
 let faseMaisAlta = 0;  // quantas fases já foram concluídas (usado para a pontuação do Arcade)
 
-// Pontuação atual: 500 por fase concluída, menos 10 por morte (nunca negativa).
+// Pontuação: recompensa o progresso (fases concluídas) e penaliza as mortes.
+// As fases existentes dividem igualmente PONTOS_MAXIMOS, então terminar o
+// jogo inteiro sem morrer sempre vale os mesmos 20000 pontos, não importa
+// quantas fases existam. Cada morte custa PONTOS_POR_MORTE, nunca ficando negativo.
+const PONTOS_MAXIMOS = 20000;
+const PONTOS_POR_MORTE = 200;
 function pontuacaoAtual() {
-  return Math.max(0, faseMaisAlta * 500 - mortes * 10);
+  const pontosPorFase = PONTOS_MAXIMOS / FASES.length;
+  return Math.max(0, Math.round(faseMaisAlta * pontosPorFase - mortes * PONTOS_POR_MORTE));
 }
 
 function reiniciar() {

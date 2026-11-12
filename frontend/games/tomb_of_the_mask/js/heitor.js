@@ -182,7 +182,7 @@ function mostrarTelaInicial() {
 
     ArcadeShell.init({
         gameId: "TOMB_OF_THE_MASK",
-        gameName: "Fuga da Cobra",
+        gameName: "Run Frog",
         description: "Você é um sapo engolido por uma cobra! Deslize pelas paredes do estômago, pegue todas as moedas e moscas, desvie dos espinhos e fuja pelo portal antes que o ácido suba! Setas / WASD ou deslize o dedo.",
         accentColor: "#ff3b91",
         onPlay: comecarJogo,

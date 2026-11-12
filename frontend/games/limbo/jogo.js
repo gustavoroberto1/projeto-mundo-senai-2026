@@ -36,9 +36,10 @@ function atualizar(dt) {
   if (estado === "venceu") {
     if (teclas["Enter"]) {
       if (numeroFase < FASES.length - 1) {
-        faseMaisAlcancada = Math.max(faseMaisAlcancada, numeroFase + 1);
-        carregarFase(numeroFase + 1);
+        definirFaseMaisAlcancada(numeroFase + 1);
+        carregarFase(0); // fundo da tela de seleção de fases
         reiniciar();
+        estado = "fases"; // volta para a seleção, já com a próxima fase liberada
       } else {
         if (window.ArcadeShell) {
           ArcadeShell.gameOver(pontuacaoAtual(), {
@@ -163,10 +164,8 @@ function atualizar(dt) {
   // --- chegou na luz? ---
   if (colide(jogador, luz) && estado !== "venceu") {
     estado = "venceu";
-    faseMaisAlta = Math.max(
-      faseMaisAlta,
-      Math.min(numeroFase + 1, FASES.length - 1),
-    ); // conta a fase que acabou de terminar, não a próxima
+    // conta a fase que acabou de terminar (1 a FASES.length, nunca o índice dela)
+    faseMaisAlta = Math.max(faseMaisAlta, numeroFase + 1);
   }
 
   // --- animação e câmera ---
@@ -386,7 +385,7 @@ function desenhar() {
     ctx.textAlign = "left";
     ctx.fillText("Mortes: " + mortes, 16, 28);
     ctx.fillText("Fase " + (numeroFase + 1), 16, 48);
-    ctx.fillText("Pontos: " + pontos(), 16, 68);
+    ctx.fillText("Pontos: " + pontuacaoAtual(), 16, 68);
   }
 
   if (estado === "morto") {
@@ -398,15 +397,19 @@ function desenhar() {
   if (estado === "venceu") {
     ctx.fillStyle = "rgba(0,0,0,0.7)";
     ctx.fillRect(0, 0, LARGURA, ALTURA);
-    textoCentral("Você chegou à luz.", ALTURA / 2 - 6, 34);
+    textoCentral(
+      numeroFase < FASES.length - 1 ? "Fase concluída!" : "Você chegou à luz.",
+      ALTURA / 2 - 6,
+      34,
+    );
     textoCentral(
       numeroFase < FASES.length - 1
-        ? "Aperte Enter para a próxima fase"
+        ? "Aperte Enter para escolher a próxima fase"
         : "Aperte Enter para jogar de novo",
       ALTURA / 2 + 30,
       18,
     );
-    textoCentral("Pontos: " + pontos(), ALTURA / 2 + 62, 18);
+    textoCentral("Pontos: " + pontuacaoAtual(), ALTURA / 2 + 62, 18);
   }
 }
 

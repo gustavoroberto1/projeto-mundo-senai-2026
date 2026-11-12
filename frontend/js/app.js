@@ -1,5 +1,5 @@
 const images = [
-  { jogo: "TOMB_OF_THE_MASK", img: "../assets/run-frog.jpeg" },
+  { jogo: "TOMB_OF_THE_MASK", img: "./assets/run-frog.jpeg" },
   { jogo: "HUMANS_VS_IA", img: "./assets/plants-vs-zombie.jpeg" },
   { jogo: "LIMBO", img: "./assets/limbo.jpg" },
   { jogo: "LEVEL_DEVIL", img: "./assets/troll-cat.png" },
@@ -53,7 +53,7 @@ function renderGames() {
 
       return `
       <article class="game">
-        <div class="art" ${
+        <div class="art" role="img" aria-label="${g.name}" ${
           imagem
             ? `style="background-image: url('${imagem.img}'); background-size: cover; background-position: center;"`
             : ""
@@ -69,27 +69,6 @@ function renderGames() {
     })
     .join("");
 }
-
-// function renderGames() {
-//   document.getElementById("games").innerHTML = games
-//     .map((g) => {
-//       const rec = records[g.id];
-//       const progress =
-//         rec && rec.played
-//           ? "★ SEU RECORDE: " + rec.bestScore.toLocaleString("pt-BR")
-//           : "○ AINDA NÃO JOGOU";
-//       return `
-//       <article class="game">
-//         <div class="art"><div class="symbol">${ICONS[g.id] || "🎮"}</div></div>
-//         <div class="game-content">
-//           <h2>${g.name}</h2><p>${g.description}</p>
-//           <button class="play" onclick="startGame('${g.id}')">▶ JOGAR AGORA</button>
-//           <div class="progress">${progress}</div>
-//         </div>
-//       </article>`;
-//     })
-//     .join("");
-// }
 
 async function syncPlayer() {
   document.getElementById("loginOverlay").classList.toggle("hidden", !!player);
