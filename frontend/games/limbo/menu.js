@@ -5,9 +5,10 @@
 // =====================================================
 const TITULO_JOGO = "LIMBO";
 
+let faseMaisAlcancada = 0;
 // Quando quiser bloquear fases, mude aqui (ex.: return i <= faseMaisAlcancada;)
 function faseLiberada(i) {
-  return true;
+  return i <= faseMaisAlcancada;
 }
 
 function noMenu() {
@@ -16,15 +17,27 @@ function noMenu() {
 
 const mouse = { x: -1, y: -1 };
 
-const botaoJogar = { x: LARGURA / 2 - 90, y: 270, w: 180, h: 46, texto: "Jogar" };
+const botaoJogar = {
+  x: LARGURA / 2 - 90,
+  y: 270,
+  w: 180,
+  h: 46,
+  texto: "Jogar",
+};
 const botaoVoltar = { x: 16, y: 16, w: 90, h: 32, texto: "Voltar" };
 
-const CARD_W = 200, CARD_H = 110, CARD_GAP = 30, CARDS_POR_LINHA = 3;
+const CARD_W = 200,
+  CARD_H = 110,
+  CARD_GAP = 30,
+  CARDS_POR_LINHA = 3;
 
 function retanguloFase(i) {
   const linha = Math.floor(i / CARDS_POR_LINHA);
   const col = i % CARDS_POR_LINHA;
-  const naLinha = Math.min(CARDS_POR_LINHA, FASES.length - linha * CARDS_POR_LINHA);
+  const naLinha = Math.min(
+    CARDS_POR_LINHA,
+    FASES.length - linha * CARDS_POR_LINHA,
+  );
   const largTotal = naLinha * CARD_W + (naLinha - 1) * CARD_GAP;
   return {
     x: (LARGURA - largTotal) / 2 + col * (CARD_W + CARD_GAP),
@@ -42,13 +55,13 @@ function dentroDe(r, x, y) {
 function iniciarFase(i) {
   if (!FASES[i] || !faseLiberada(i)) return;
   carregarFase(i);
-  reiniciar();            // deixa estado = "jogando"
+  reiniciar(); // deixa estado = "jogando"
   mortes = 0;
   canvas.style.cursor = "default";
 }
 
 function voltarAoMenu() {
-  carregarFase(0);        // o fundo do menu é a floresta
+  carregarFase(0); // o fundo do menu é a floresta
   reiniciar();
   estado = "menu";
   mortes = 0;
@@ -56,9 +69,9 @@ function voltarAoMenu() {
 
 // ---------- entrada (mouse e toque) ----------
 function posicaoNoCanvas(e) {
-  const r = canvas.getBoundingClientRect();   // o canvas é redimensionado pelo CSS
-  mouse.x = (e.clientX - r.left) * LARGURA / r.width;
-  mouse.y = (e.clientY - r.top) * ALTURA / r.height;
+  const r = canvas.getBoundingClientRect(); // o canvas é redimensionado pelo CSS
+  mouse.x = ((e.clientX - r.left) * LARGURA) / r.width;
+  mouse.y = ((e.clientY - r.top) * ALTURA) / r.height;
 }
 
 canvas.addEventListener("pointermove", posicaoNoCanvas);
@@ -68,9 +81,15 @@ canvas.addEventListener("pointerdown", (e) => {
   if (estado === "menu") {
     if (dentroDe(botaoJogar, mouse.x, mouse.y)) estado = "fases";
   } else if (estado === "fases") {
-    if (dentroDe(botaoVoltar, mouse.x, mouse.y)) { estado = "menu"; return; }
+    if (dentroDe(botaoVoltar, mouse.x, mouse.y)) {
+      estado = "menu";
+      return;
+    }
     for (let i = 0; i < FASES.length; i++) {
-      if (dentroDe(retanguloFase(i), mouse.x, mouse.y)) { iniciarFase(i); return; }
+      if (dentroDe(retanguloFase(i), mouse.x, mouse.y)) {
+        iniciarFase(i);
+        return;
+      }
     }
   }
 });
@@ -80,9 +99,9 @@ window.addEventListener("keydown", (e) => {
     if (e.code === "Enter" || e.code === "Space") estado = "fases";
   } else if (estado === "fases") {
     if (e.code === "Escape") estado = "menu";
-    if (e.code.startsWith("Digit")) iniciarFase(Number(e.code[5]) - 1);   // 1, 2, 3... = atalho
+    if (e.code.startsWith("Digit")) iniciarFase(Number(e.code[5]) - 1); // 1, 2, 3... = atalho
   } else if (e.code === "Escape") {
-    voltarAoMenu();       // durante o jogo, Esc volta ao menu
+    voltarAoMenu(); // durante o jogo, Esc volta ao menu
   }
 });
 
@@ -124,12 +143,12 @@ function desenharCardFase(i) {
   // silhuetas: árvores na floresta, prédios na cidade
   ctx.fillStyle = "#050505";
   for (let k = 0; k < 8; k++) {
-    const h = 30 + (k * 37) % 34;
+    const h = 30 + ((k * 37) % 34);
     const x = r.x + 10 + k * 24;
     if (f.cenario === "cidade") ctx.fillRect(x, r.y + r.h - 26 - h, 18, h);
     else ctx.fillRect(x + 6, r.y + r.h - 26 - h, 5, h);
   }
-  ctx.fillRect(r.x, r.y + r.h - 26, r.w, 26);   // chão
+  ctx.fillRect(r.x, r.y + r.h - 26, r.w, 26); // chão
 
   // número da fase
   ctx.fillStyle = "#fff";
@@ -142,7 +161,8 @@ function desenharCardFase(i) {
 
   // cadeado, se a fase estiver bloqueada
   if (!liberada) {
-    const cx = r.x + r.w / 2, cy = r.y + 78;
+    const cx = r.x + r.w / 2,
+      cy = r.y + 78;
     ctx.fillStyle = "#fff";
     ctx.fillRect(cx - 9, cy, 18, 14);
     ctx.strokeStyle = "#fff";
@@ -188,7 +208,6 @@ function desenharMenu() {
     ctx.font = "14px Georgia, serif";
     ctx.textAlign = "center";
     ctx.fillText("Enter - jogar     F - tela cheia", LARGURA / 2, ALTURA - 24);
-
   } else {
     ctx.fillStyle = "rgba(0,0,0,0.75)";
     ctx.fillRect(0, 0, LARGURA, ALTURA);
@@ -206,7 +225,11 @@ function desenharMenu() {
     ctx.fillStyle = "rgba(255,255,255,0.55)";
     ctx.font = "14px Georgia, serif";
     ctx.textAlign = "center";
-    ctx.fillText("Esc - voltar     1 a " + FASES.length + " - atalho", LARGURA / 2, ALTURA - 16);
+    ctx.fillText(
+      "Esc - voltar     1 a " + FASES.length + " - atalho",
+      LARGURA / 2,
+      ALTURA - 16,
+    );
   }
 
   ctx.restore();
